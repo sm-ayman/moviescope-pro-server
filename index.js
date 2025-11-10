@@ -30,6 +30,35 @@ async function run() {
     const moviesCollection = db.collection("movies");
     const usersCollection = db.collection("users");
 
+    // create-user
+    app.post("/users", async (req, res) => {
+      try {
+        const newUser = req.body;
+        const existingUser = await usersCollection.findOne({
+          email: newUser.email,
+        });
+        if (existingUser) {
+          return res.status(400).send({ error: "User already exists" });
+        }
+        const result = await usersCollection.insertOne(newUser);
+        res.send(result);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: "Failed to register user" });
+      }
+    });
+
+    // get-user
+    app.get("/users", async (req, res) => {
+      try {
+        const users = await usersCollection.find().toArray();
+        res.send(users);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: "Failed to fetch users" });
+      }
+    });
+
     // insert-movie
     app.post("/movies", async (req, res) => {
       try {
@@ -64,21 +93,7 @@ async function run() {
 
     // get-movies
     app.get("/movies", async (req, res) => {
-      const cursor = moviesCollection.find().sort({rating: -1});
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-     // top-rated-movies
-    app.get("/top-rated-movies", async (req, res) => {
-      const cursor = moviesCollection.find().sort({rating: -1}).limit(5);
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    // recent-movies
-    app.get("/recent-movies", async (req, res) => {
-      const cursor = moviesCollection.find().sort({releaseYear: -1}).limit(10);
+      const cursor = moviesCollection.find().sort({ rating: -1 });
       const result = await cursor.toArray();
       res.send(result);
     });
@@ -89,6 +104,32 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await moviesCollection.findOne(query);
       res.send(result);
+    });
+
+    // top-rated-movies
+    app.get("/top-rated-movies", async (req, res) => {
+      const cursor = moviesCollection.find().sort({ rating: -1 }).limit(5);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // recent-movies
+    app.get("/recent-movies", async (req, res) => {
+      const cursor = moviesCollection.find().sort({ releaseYear: -1 }).limit(6);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // Get total counts
+    app.get("/stats", async (req, res) => {
+      try {
+        const totalMovies = await moviesCollection.countDocuments();
+        const totalUsers = await usersCollection.countDocuments();
+        res.send({ totalMovies, totalUsers });
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: "Failed to fetch stats" });
+      }
     });
 
     await client.db("admin").command({ ping: 1 });
