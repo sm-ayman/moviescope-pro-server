@@ -62,10 +62,32 @@ async function run() {
       res.send(result);
     });
 
-    // get-movie
+    // get-movies
     app.get("/movies", async (req, res) => {
-      const cursor = moviesCollection.find();
+      const cursor = moviesCollection.find().sort({rating: -1});
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+     // top-rated-movies
+    app.get("/top-rated-movies", async (req, res) => {
+      const cursor = moviesCollection.find().sort({rating: -1}).limit(5);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // recent-movies
+    app.get("/recent-movies", async (req, res) => {
+      const cursor = moviesCollection.find().sort({releaseYear: -1}).limit(10);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // get-single-movie
+    app.get("/movies/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await moviesCollection.findOne(query);
       res.send(result);
     });
 
