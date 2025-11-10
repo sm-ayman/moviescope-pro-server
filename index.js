@@ -91,11 +91,18 @@ async function run() {
       res.send(result);
     });
 
-    // get-movies
+    // get-movies || /movies?addedBy=user@example.com
     app.get("/movies", async (req, res) => {
-      const cursor = moviesCollection.find().sort({ rating: -1 });
-      const result = await cursor.toArray();
-      res.send(result);
+      const { addedBy } = req.query;
+      try {
+        const query = addedBy ? { addedBy: addedBy } : {};
+        console.log("Querying movies with:", query);
+        const movies = await moviesCollection.find(query).toArray();
+        res.json(movies);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch movies" });
+      }
     });
 
     // get-single-movie
