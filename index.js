@@ -3,8 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
-
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // middleware
 app.use(cors());
@@ -24,17 +23,34 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-
     await client.connect();
+    console.log("Connected to MongoDB");
+
+    const db = client.db("moviescope_db");
+    const moviesCollection = db.collection("movies");
+    const usersCollection = db.collection("users");
+
+    // insert-movie
+    app.post("/movies", async (req, res) => {
+      try {
+        const newMovie = req.body;
+        const result = await moviesCollection.insertOne(newMovie);
+        res.send(result);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: "Failed to insert movie" });
+      }
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
-
-  } finally {
-    await client.close();
+  } catch (err) {
+    console.error(err);
   }
 }
+
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
