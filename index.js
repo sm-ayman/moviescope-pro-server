@@ -115,9 +115,19 @@ async function run() {
 
     // top-rated-movies
     app.get("/top-rated-movies", async (req, res) => {
-      const cursor = moviesCollection.find().sort({ rating: -1 }).limit(5);
-      const result = await cursor.toArray();
-      res.send(result);
+      try {
+        const pipeline = [
+          { $addFields: { numericRating: { $toDouble: "$rating" } } },
+          { $sort: { numericRating: -1 } },
+          { $limit: 5 },
+        ];
+
+        const result = await moviesCollection.aggregate(pipeline).toArray();
+        res.send(result);
+      } catch (err) {
+        console.error("Failed to fetch top-rated movies:", err);
+        res.status(500).send({ error: "Failed to fetch top-rated movies" });
+      }
     });
 
     // recent-movies
