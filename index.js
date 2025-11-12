@@ -164,6 +164,8 @@ app.get("/", (req, res) => {
   res.send("Moviescope-pro server is Running!");
 });
 
-app.listen(port, () => {
-  console.log("Moviescope Pro Server is Running on Port: ", port);
-});
+// app.listen(port, () => {
+//   console.log("Moviescope Pro Server is Running on Port: ", port);
+// });
+
+module.exports = app;
