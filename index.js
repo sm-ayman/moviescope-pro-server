@@ -91,12 +91,12 @@ async function run() {
       res.send(result);
     });
 
-    // get-movies || /movies?addedBy=user@example.com
+    // get-movies || /movies?addedBy=sultanmdayman@gmail.com
     app.get("/movies", async (req, res) => {
       const { addedBy } = req.query;
       try {
         const query = addedBy ? { addedBy: addedBy } : {};
-        console.log("Querying movies with:", query);
+        // console.log("Querying movies with:", query);
         const movies = await moviesCollection.find(query).toArray();
         res.json(movies);
       } catch (err) {
@@ -137,7 +137,7 @@ async function run() {
       res.send(result);
     });
 
-    // Get total counts
+    // Get total counts -stats
     app.get("/stats", async (req, res) => {
       try {
         const totalMovies = await moviesCollection.countDocuments();
@@ -149,7 +149,7 @@ async function run() {
       }
     });
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
