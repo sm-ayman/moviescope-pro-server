@@ -168,4 +168,14 @@ app.get("/", (req, res) => {
 //   console.log("Moviescope Pro Server is Running on Port: ", port);
 // });
 
-module.exports = app;
+// ---or--- 
+
+// module.exports = app;
+
+
+// it will work on both local server and vercel
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log("Moviescope Pro Server running on port:", port);
+  });
+}
